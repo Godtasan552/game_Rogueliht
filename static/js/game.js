@@ -26,18 +26,23 @@ const weaponClasses = ['player-weapon-purple', 'player-weapon-orange', 'player-w
 
 function collectWeapon(position) {
     if (grid.children[position].classList.contains('weapon')) {
-        // ลบ class 'weapon' ออกจากช่อง
+        // ลบ class 'weapon' ออกจากช่องที่ผู้เล่นเหยียบ
         grid.children[position].classList.remove('weapon');
 
+        grid.children[position].style.backgroundColor = 'white';
         // เพิ่ม class อาวุธให้กับตัวละคร
         const currentWeaponClass = weaponClasses[weaponcount % weaponClasses.length];
         grid.children[playerPosition].classList.remove('player-weapon-purple', 'player-weapon-orange', 'player-weapon-cyan');
         grid.children[playerPosition].classList.add(currentWeaponClass);
+
+        // เพิ่มจำนวนอาวุธที่เก็บได้
         weaponcount++;
 
+        // แสดงผลในคอนโซล
         console.log(`Collected weapon! Total: ${weaponcount}`);
     }
 }
+
 function updateStatus() {
     console.log(`Player position: ${playerPosition}`);
     console.log(`Weapons collected: ${weaponcount}`);

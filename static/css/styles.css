@@ -4,7 +4,7 @@ body {
     justify-content: center;/*จัด content ให้อยู่ตรงกลาง ในแนวนอน*/
     align-items: center;/*จัด content ให้อยู่ตรงกลาง ในแนวตั้ง*/
     height: 100vh;/*กำหนดความสูงของ body 100% ของ viewport height*/
-    background-color: #f8bbd0;/*สีพื้นหลัง สีน้ำเงิน*/;
+    background-color: #fff4f8;/*สีพื้นหลัง สีน้ำเงิน*/;
     margin: 0;/*ลบค่าช่องว่างรอบขอบ*/
 }
 #game-container {
@@ -46,4 +46,8 @@ body {
 .player-weapon-cyan {
     background-color: cyan;
     border: 2px solid gold;
+}
+.player-weapon-white {
+    background-color: rgb(255, 255, 255);
+    border: 2px solid rgb(255, 255, 255);
 }
