@@ -1,0 +1,49 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex; /*จัดองค์ประกอบใน body เป็น flexbox*/
+    justify-content: center;/*จัด content ให้อยู่ตรงกลาง ในแนวนอน*/
+    align-items: center;/*จัด content ให้อยู่ตรงกลาง ในแนวตั้ง*/
+    height: 100vh;/*กำหนดความสูงของ body 100% ของ viewport height*/
+    background-color: #f8bbd0;/*สีพื้นหลัง สีน้ำเงิน*/;
+    margin: 0;/*ลบค่าช่องว่างรอบขอบ*/
+}
+#game-container {
+    display: flex;/*จัดองประกอบใน  game-container เป็นflexbox*/
+    justify-content: center;/*จัดตำแหน่งแผนที่ grid ให้อยู่ตรงกลางในแนวนอน ของ container*/
+    align-items: center;/*จัดตำแหน่งแผนที่ ให้อยู่ตรงกลางในแนวตั้ง*/
+}
+#map_grid {
+    display: grid;/*จัดองประกรอบใน map เป็น  grid*/
+    grid-template-columns: repeat(10,50px);/*กำหนดให้ map มี 10c width 40px*/
+    grid-template-rows: repeat(10,50px);/*กำหนดให้ map มี 10r heigth 40px*/
+}
+.tile{
+    width: 50px;/*กำหนดความกว้าง 40*/
+    height: 50px;/*กำหนดความกว้าง 40*/
+    border: 1px solid #004bff;/*เพิ่มเส้นขอบ 1 โดยใช้สีเเดง*/
+    box-sizing: border-box;/*กำหนดให้เส้นขอบรวมอยู่ในขนาดที่กำหนด (ทำให้ขนาดของช่องไม่เกิน 40x40 พิกเซล)*/
+}
+.player{
+    background-color: #fe4f51;/*กำหนดสี player เป็นสีดำ*/
+}
+.wall {
+    background-color: #312562; /* กำหนดสีของกำแพง */
+    border: 1px solid #e20083; /* เพิ่มเส้นขอบให้กำแพง */
+}
+.weapon {
+    background-color: gold;
+}
+.player-weapon-purple {
+    background-color: purple;
+    border: 2px solid gold;
+}
+
+.player-weapon-orange {
+    background-color: orange;
+    border: 2px solid gold;
+}
+
+.player-weapon-cyan {
+    background-color: cyan;
+    border: 2px solid gold;
+}
