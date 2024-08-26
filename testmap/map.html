@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG 2D Game</title>
+    <style>
+        #container {
+            position: relative;
+            width: 926px; /* ขนาดของแผนที่ */
+            height: 428px; /* ขนาดของแผนที่ */
+            overflow: hidden;
+            border: 1px solid #000;
+        }
+        #gif {
+            position: absolute;
+            width: 100px; /* ขนาดของ GIF */
+            height: 100px; /* ขนาดของ GIF */
+            top: 0;
+            left: 0;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .monster {
+            position: absolute;
+            width: 100px; /* ขนาดของมอนสเตอร์ */
+            height: 100px; /* ขนาดของมอนสเตอร์ */
+            background: url('monster2idel.gif') no-repeat center center;
+            background-size: cover;
+        }
+        /* สไตล์สำหรับป็อปอัพ */
+        .popup {
+            display: none; /* ซ่อนป็อปอัพเริ่มต้น */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 100;
+            text-align: center;
+        }
+        .popup button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .popup button:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <img id="map" src="map1.png" alt="Map">
+        <img id="gif" src="gif/kinght.gif" alt="Moving GIF">
+
+        <!-- มอนสเตอร์ -->
+        <div id="monster1" class="monster" style="top: 150px; left: 400px;"></div>
+        <div id="monster2" class="monster" style="top: 100px; left: 600px;"></div>
+        <div id="monster3" class="monster" style="top: 200px; left: 300px;"></div>
+        <div id="monster4" class="monster" style="top: 50px; left: 500px;"></div>
+        <div id="monster5" class="monster" style="top: 300px; left: 700px;"></div>
+    </div>
+
+    <!-- ป็อปอัพ 1 -->
+    <div id="popup1" class="popup">
+        <p>You Noob</p>
+        <button id="start-new-game">Start New Game</button>
+        <button id="back-to-main-menu">Back to Main Menu</button>
+    </div>
+
+    <!-- ป็อปอัพ 2 -->
+    <div id="popup2" class="popup">
+        <p>You Win:</p>
+        <button id="Next-Map">Next Map</button>
+        <button id="back-to-main-menu2">Back to Main Menu</button>
+    </div>
+    
+    <script>
+        const gif = document.getElementById('gif');
+        const step = 10; // จำนวนพิกเซลที่ GIF เคลื่อนที่ในแต่ละครั้ง
+        const container = document.getElementById('container');
+        const containerWidth = container.clientWidth;
+        const containerHeight = container.clientHeight;
+
+        const monsters = [
+            document.getElementById('monster1'),
+            document.getElementById('monster2'),
+            document.getElementById('monster3'),
+            document.getElementById('monster4'),
+            document.getElementById('monster5'),
+        ];
+
+        const popup1 = document.getElementById('popup1');
+        const popup2 = document.getElementById('popup2');
+
+        // URLs ของ GIF ต่างๆ
+        const gifs = {
+            'idle': 'gif/kinght.gif',
+            'w': 'gif/runleft.gif',
+            's': 'gif/runleft.gif',
+            'a': 'gif/runleft.gif',
+            'd': 'gif/kinghtrunright.gif',
+            'e': 'gif/Attack.gif',
+            'f': 'gif/Slide.gif',
+            'q': 'gif/attackleft.gif',
+            'monster_attack': 'monster2attackleft.gif', // เพิ่ม GIF สำหรับมอนสเตอร์โจมตี
+            'monster_dead': 'monster2dead.gif' // เพิ่ม GIF สำหรับมอนสเตอร์ตาย
+        };
+
+        let idleTimeout;
+        let attacking = false; // สถานะการโจมตี
+
+        function resetToIdle() {
+            if (!attacking) {
+                gif.src = gifs['idle'];
+            }
+        }
+
+        function showPopup(popup) {
+            popup.style.display = 'block';
+        }
+
+        function hidePopup(popup) {
+            popup.style.display = 'none';
+        }
+
+        // Function to get the bounding box (hitbox) of an element
+        function getHitbox(element) {
+            const rect = element.getBoundingClientRect();
+            return {
+                top: rect.top,
+                left: rect.left,
+                bottom: rect.bottom,
+                right: rect.right,
+            };
+        }
+
+        // Function to check if player is near the monster
+        function isNear(playerHitbox, monsterHitbox) {
+            const proximity = 50; // ระยะใกล้ที่จะทำให้สามารถโจมตีได้
+
+            return (
+                playerHitbox.right > monsterHitbox.left - proximity &&
+                playerHitbox.left < monsterHitbox.right + proximity &&
+                playerHitbox.bottom > monsterHitbox.top - proximity &&
+                playerHitbox.top < monsterHitbox.bottom + proximity
+            );
+        }
+
+        // Function to handle monster death animation
+        function handleMonsterDeath(monster) {
+            monster.style.backgroundImage = `url(${gifs['monster_dead']})`;
+            setTimeout(() => {
+                monster.style.display = 'none'; // "ฆ่า" มอนสเตอร์หลังจากการแสดงการตาย
+            }, 1000); // เปลี่ยนเวลา 1000ms (1 วินาที) ตามความยาวของ GIF
+        }
+
+        // Function to check collision and kill the monster
+        function checkAndAttack() {
+            const playerHitbox = getHitbox(gif);
+
+            monsters.forEach(monster => {
+                const monsterHitbox = getHitbox(monster);
+
+                if (isNear(playerHitbox, monsterHitbox)) {
+                    if (attacking) {
+                        handleMonsterDeath(monster); // แสดงการตายของมอนสเตอร์
+                    } else {
+                        monster.style.backgroundImage = `url(${gifs['monster_attack']})`; // เปลี่ยนเป็น GIF โจมตี
+                    }
+                } else {
+                    monster.style.backgroundImage = `url('monster2idel.gif')`; // กลับไปเป็นภาพ idle
+                }
+            });
+        }
+
+        function checkProximityAndTriggerAttack() {
+            checkAndAttack(); // ตรวจสอบการโจมตีมอนสเตอร์
+
+            // ตรวจสอบสถานะการโจมตีและเปลี่ยน GIF ของมอนสเตอร์
+            if (!attacking) {
+                monsters.forEach(monster => {
+                    if (isNear(getHitbox(gif), getHitbox(monster))) {
+                        monster.style.backgroundImage = 'monster2attackleft.gif'; // เปลี่ยนเป็น GIF โจมตี
+                    } else {
+                        monster.style.backgroundImage = 'monster2idel.gif'; // กลับไปเป็นภาพ idle
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            const style = window.getComputedStyle(gif);
+            let top = parseInt(style.top) || 0;
+            let left = parseInt(style.left) || 0;
+
+            // เคลียร์ timeout ที่มีอยู่
+            clearTimeout(idleTimeout);
+
+            if (event.key === 'w') {
+                gif.src = gifs['w'];
+                if (top - step >= 0) {
+                    gif.style.top = (top - step) + 'px';
+                }
+            } else if (event.key === 's') {
+                gif.src = gifs['s'];
+                if (top + step <= containerHeight - gif.clientHeight) {
+                    gif.style.top = (top + step) + 'px';
+                }
+            } else if (event.key === 'a') {
+                gif.src = gifs['a'];
+                if (left - step >= 0) {
+                    gif.style.left = (left - step) + 'px';
+                }
+            } else if (event.key === 'd') {
+                gif.src = gifs['d'];
+                if (left + step <= containerWidth - gif.clientWidth) {
+                    gif.style.left = (left + step) + 'px';
+                }
+            } else if (event.key === 'e' || event.key === 'q') {
+                gif.src = gifs[event.key];
+                attacking = true; // กำหนดสถานะการโจมตี
+                checkProximityAndTriggerAttack(); // ตรวจสอบความใกล้ชิดและเปลี่ยนอนิเมชันของมอนสเตอร์
+            } else {
+                attacking = false; // หากไม่ใช่การโจมตี
+                resetToIdle(); // เปลี่ยนกลับไปที่ idle
+            }
+
+            // ตั้งเวลาใหม่เพื่อเปลี่ยนกลับไปที่ idle GIF หลังจากไม่มีการกดปุ่ม
+            idleTimeout = setTimeout(resetToIdle, 250); // 250ms = 0.25s
+        });
+
+        document.getElementById('start-new-game').addEventListener('click', () => {
+            hidePopup(popup1);
+            // รีเฟรชหน้าเว็บเพื่อเริ่มเกมใหม่
+            window.location.reload();
+        });
+
+        document.getElementById('back-to-main-menu').addEventListener('click', () => {
+            hidePopup(popup1);
+            // เปลี่ยนไปยังหน้าเมนูหลัก
+            window.location.href = 'main.html'; // เปลี่ยน 'main_menu.html' เป็นชื่อไฟล์ HTML ของหน้าเมนูหลัก
+        });
+
+        document.getElementById('Next-Map').addEventListener('click', () => {
+            hidePopup(popup2);
+            // รีเฟรชหน้าเว็บเพื่อเริ่มเกมใหม่
+            window.location.href = 'map2.html';
+        });
+
+        document.getElementById('back-to-main-menu2').addEventListener('click', () => {
+            hidePopup(popup2);
+            // เปลี่ยนไปยังหน้าเมนูหลัก
+            window.location.href = 'main.html'; // เปลี่ยน 'main_menu.html' เป็นชื่อไฟล์ HTML ของหน้าเมนูหลัก
+        });
+    </script>
+</body>
+</html>

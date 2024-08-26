@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG 2D Game</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+        #start-screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10;
+            text-align: center;
+        }
+        #start-screen img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the image covers the screen without distortion */
+            z-index: 1;
+        }
+        #start-screen div {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            z-index: 2;
+            animation: blink 1s step-start infinite; /* Apply the blink animation */
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen">
+        <img src="img/loadingart.png" alt="Game Image">
+        <div>Tap to Start</div>
+    </div>
+    
+    <script>
+        const startScreen = document.getElementById('start-screen');
+
+        startScreen.addEventListener('click', () => {
+            window.location.href = 'main.html'; // เปลี่ยน 'main.html' เป็นชื่อไฟล์ที่คุณต้องการลิงก์ไป
+        });
+    </script>
+</body>
+</html>
